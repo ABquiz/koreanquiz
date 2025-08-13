@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>세돈 퀴즈 게임</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- 시작화면 -->
+  <div id="start-screen">
+    <h1>세돈 퀴즈에 오신 걸 환영합니다!</h1>
+    <button onclick="goToMain()">시작하기</button>
+    <button onclick="confirmExit()">종료하기</button>
+  </div>
+
+  <!-- 종료 확인창 -->
+  <div id="exit-confirm" style="display:none;">
+    <p>정말 종료하시겠습니까?</p>
+    <button onclick="exitApp()">확인</button>
+    <button onclick="cancelExit()">취소</button>
+  </div>
+
+  <!-- 메인화면 -->
+  <div id="main-screen" style="display:none;">
+    <h2>과목을 선택하세요</h2>
+    <button onclick="startQuiz('국어')">국어</button>
+    <button onclick="startQuiz('한국사')">한국사</button>
+    <button onclick="startQuiz('사회')">사회</button>
+    <button onclick="startQuiz('수학')">수학</button>
+    <br><br>
+    <button onclick="goToStart()">시작화면으로</button>
+  </div>
+
+  <!-- 문제풀이 화면 -->
+  <div id="quiz-screen" style="display:none;">
+    <h2 id="subject-title">과목명</h2>
+    <div id="score">점수: 0점</div>
+    <div id="question">문제 텍스트</div>
+    <div id="choices"></div>
+    <button id="check">확인</button></div>
+    <div id="answer" style="display:none;"></div>
+    <div id="explanation" style="display:none;"></div>
+    <button onclick="nextQuestion()">다음 문제</button>
+    <button onclick="goToMain()">나가기</button>
+  </div>
+
+  <script src="questions.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

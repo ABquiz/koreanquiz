@@ -1,0 +1,29 @@
+body {
+  font-family: sans-serif;
+  text-align: center;
+  padding: 20px;
+  background-color: #f9f9f9;
+}
+
+button {
+  margin: 10px;
+  padding: 10px 20px;
+  font-size: 1em;
+  cursor: pointer;
+}
+
+#choices button {
+  display: block;
+  margin: 5px auto;
+  width: 80%;
+}
+
+.selected {
+  background-color: #d0eaff;
+}
+
+#answer, #explanation {
+  margin-top: 15px;
+  font-style: italic;
+  color: #555;
+}
