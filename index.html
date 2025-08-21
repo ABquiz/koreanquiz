@@ -1,0 +1,83 @@
+<!DOCTYPE html> 
+<html lang="ko">
+  <head> 
+    <meta charset="UTF-8"> 
+    <title>퀴즈 게임</title> 
+    <link rel="stylesheet" href="style.css"> 
+  </head> 
+  
+<!-- <div id="final-score"></div> -->
+<!-- <div id="total-score"></div>-->
+<!-- <div id="finish-subject-title"></div> -->
+  
+  <body> 
+    <!-- 시작화면 --> 
+     <div id="start-screen">
+       <button class="exit-button" onclick="confirmExit()">종료</button> 
+       <h1>환영합니다</h1>
+       <button onclick="goToMain()">시작하기</button> 
+    </div>
+
+    <!-- 종료 확인창 -->
+      <div id="exit-confirm" style="display:none; position:fixed; top:30%; left:30%; background:#fff; border:1px solid #ccc; padding:20px;">
+        <p>종료 하시겠습니까?</p>
+        <button onclick="exitApp()">확인</button>
+        <button onclick="cancelExit()">취소</button>
+      </div>
+
+    <!-- 메인화면 --> 
+      <div id="main-screen" style="display:none;">
+        <button onclick="goToStart()" style="position:absolute; top:10px; left:10px;">처음으로</button>
+        <button class="exit-button" onclick="confirmExit()">종료</button>  
+        <h2>과목 선택</h2> 
+        <button onclick="goToTheme('국어')">국어</button> <button onclick="goToTheme('한국사')">한국사</button> 
+        <button onclick="goToTheme('사회')">사회</button> <button onclick="goToTheme('수학')">수학</button> 
+        <h2>오늘의 누적 점수</h2> 
+        <p>국어: <span id="score-korean">0/0</span></p> 
+        <p>한국사: <span id="score-history">0/0</span></p> 
+        <p>사회: <span id="score-social">0/0</span></p> 
+        <p>수학: <span id="score-math">0/0</span></p> 
+      </div>
+
+    <!-- 테마선택 화면 --> 
+      <div id="theme-screen" style="display:none;"> 
+        <button onclick="goToMain()" style="position:absolute; top:10px; left:10px;">메인화면</button> 
+        <button class="exit-button" onclick="confirmExit()">종료</button> 
+        <h2 id="theme-subject-title">과목명</h2> 
+        <button onclick="startQuiz(currentSubject)">전체영역</button> 
+        <h3>상세 테마 선택</h3> 
+        <select id="theme-list"> 
+        <option value="">테마를 선택하세요</option> 
+        </select> <button onclick="startQuizWithTheme()">테마 확인</button> 
+      </div>
+
+    <!-- 문제풀이 화면 --> 
+      <div id="quiz-screen" style="display:none;"> 
+        <button onclick="goToTheme(currentSubject)" style="position:absolute; top:10px; left:10px;">테마선택</button> 
+        <button class="exit-button" onclick="confirmExit()">종료</button> 
+        <h2 id="quiz-subject-title">과목명</h2> 
+        <h3 id="score-display">현재 점수: 0/20</h3> 
+        <div id="question">문제:</div> 
+        <div id="passage">지문:</div> 
+        <div id="choices"></div> 
+        <button onclick="checkAnswer()">완료</button> 
+        <button onclick="showExplanation()">해설보기</button> 
+        <div id="result"></div> <div id="explanation"></div> 
+        <div id="correct-answer"></div> <button onclick="nextQuestion()">다음문제</button> 
+      </div>
+
+    <!-- 풀이종료 화면 --> 
+      <div id="finish-screen" style="display:none;"> 
+        <button onclick="goToStart()" style="position:absolute; top:10px; left:10px;">처음으로</button> 
+        <button class="exit-button" onclick="confirmExit()">종료</button> 
+        <h2>이번 정답 수: <span id="final-score">0/20</span></h2> 
+        <h2>누적 정답 수: <span id="total-score">0/0</span></h2> 
+        <h2>고생하셨습니다</h2> 
+        <button onclick="goToMain()">과목선택으로</button> 
+        <button onclick="goToTheme(currentSubject)">테마선택으로</button> 
+        <button onclick="startQuiz(currentSubject)">재시작</button> 
+      </div>
+
+    <script src="script.js"></script> 
+  </body> 
+</html>
