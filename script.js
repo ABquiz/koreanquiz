@@ -182,13 +182,17 @@ function checkAnswer() {
     document.getElementById("score-display").textContent = `현재 점수: ${score}/${totalQuestions}`; 
     document.getElementById("correct-answer").textContent = `정답: ${currentQuestion.choices[currentQuestion.answer]}`; 
     document.getElementById("explanation").textContent = currentQuestion.explanation; 
-}
+// 이 기능은 다음문제 기능에서만 되도록 해야 하는데
+//if (totalQuestions >= 20) { 
+//  goToFinish(currentSubject); 
+//  return; 
 
-    // 이 기능은 다음문제 기능에서만 되도록 해야 하는데
-  //if (totalQuestions >= 20) { 
-  //  goToFinish(currentSubject); 
-  //  return; 
   }
+
+// 이 기능은 다음문제 기능에서만 되도록 해야 하는데
+//if (totalQuestions >= 20) { 
+//  goToFinish(currentSubject); 
+//  return; 
 
 //해설보기
 function showExplanation() { 
