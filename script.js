@@ -179,7 +179,7 @@ function checkAnswer() {
   } else {
     document.getElementById("result").textContent = "오답입니다."; 
   } 
-    document.getElementById("score-display").textContent = `현재 점수: ${score}/${totalQuestions}`; 
+    document.getElementById("score-display").textContent = `정답/풀이: ${score}/${totalQuestions}`; 
     document.getElementById("correct-answer").textContent = `정답: ${currentQuestion.choices[currentQuestion.answer]}`; 
     document.getElementById("explanation").textContent = currentQuestion.explanation; 
 // 이 기능은 다음문제 기능에서만 되도록 해야 하는데
