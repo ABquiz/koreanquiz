@@ -3,7 +3,7 @@ let usedQuestions = [];
 let totalCorrect = 0;
 let totalQuestions = 0;
 let score = 0;
-let checkscore = 0;
+let hasAnswered = false;
 let currentQuestion = null;
 let selected = null;
 
@@ -148,6 +148,7 @@ function nextQuestion(subject) {
     
   // ✅ UI 업데이트 코드 끝 
 
+    hasAnswered = false; //완료 버튼 검증용 기능 원복
   // 이 기능은 다음문제 기능에서 구현 해 놔야 함
   //if (totalQuestions >= 20) { 
   //  goToFinish(currentSubject); 
@@ -160,34 +161,34 @@ function checkAnswer() {
   if (selected === null) { alert("지문을 선택하세요!"); 
     return; 
   } 
-    //totalQuestions++; 완료 버튼으로는 풀이 수가 늘어나면 안돼. 다음문제 버튼에 기능을 넣어야 해.
+
   //아무리 많이 눌러도 1번 이상 올라가지 않는 기능 필요
+  if (hasAnswered) {
+    alert("이미 푼 문제 입니다.");
+    return;
+  }
   
-  checkscore = score
+  hasAnswered = true; 
+  totalQuestions++;
+
   subjectScores[currentSubject].total++;  // 총 문제 수 증가
   if (selected === currentQuestion.answer) { 
-    // totalCorrect++; 왜 뺐지?
-    if (checkscore = score) {
-      score++; //한번 맞은 후라면 체크스코어가 이미 1 커져서 if가 score 커지는 걸 막음
-      subjectScores[currentSubject].correct++; // 누적 정답 수 증가
-    }
-    checkscore++;  //체크스코어는 맞기만하면 +1이라서 스코어랑 달라짐
+    score++; 
+    subjectScores[currentSubject].correct++; // 누적 정답 수 증가
     document.getElementById("result").textContent = "정답입니다!"; 
   } else {
     document.getElementById("result").textContent = "오답입니다."; 
-
   } 
-  
-  // 이 기능은 다음문제 기능에서만 되도록 해야 하는데
+    document.getElementById("score-display").textContent = `현재 점수: ${score}/${totalQuestions}`; 
+    document.getElementById("correct-answer").textContent = `정답: ${currentQuestion.choices[currentQuestion.answer]}`; 
+    document.getElementById("explanation").textContent = currentQuestion.explanation; 
+}
+
+    // 이 기능은 다음문제 기능에서만 되도록 해야 하는데
   //if (totalQuestions >= 20) { 
   //  goToFinish(currentSubject); 
   //  return; 
-  } 
-
-document.getElementById("score-display").textContent = `현재 점수: ${score}/${totalQuestions}`; 
-document.getElementById("correct-answer").textContent = `정답: ${currentQuestion.choices[currentQuestion.answer]}`; 
-document.getElementById("explanation").textContent = currentQuestion.explanation; 
-} 
+  }
 
 //해설보기
 function showExplanation() { 
