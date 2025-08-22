@@ -3,9 +3,11 @@ let usedQuestions = [];
 let totalCorrect = 0;
 let totalQuestions = 0;
 let score = 0;
+let checkscore = 0;
 let currentQuestion = null;
 let selected = null;
 
+// csv 불러오기
 fetch("korean_questions.csv")
   .then(response => response.text())
   .then(data => {
@@ -15,6 +17,7 @@ fetch("korean_questions.csv")
   .catch(error => {
     console.error("CSV 파일 로딩 실패:", error);
   });
+
 
 const questionsDB = { 
   "국어": [], 
@@ -30,6 +33,7 @@ const subjectScores = {
   수학: { correct: 0, total: 0 }
 };
 
+// csv에서 문제 랜덤 뽑기
 function parseCSV(csvText) { 
   const lines = csvText.trim().split("\n"); 
   const headers = lines[0].split(","); 
@@ -47,6 +51,7 @@ function parseCSV(csvText) {
   } 
 } 
 
+//화면 지우기
 function hideAll() { 
   document.getElementById("start-screen").style.display = "none"; 
   document.getElementById("main-screen").style.display = "none"; 
@@ -56,29 +61,35 @@ function hideAll() {
   document.getElementById("exit-confirm").style.display = "none"; 
 } 
 
+//시작화면
 function goToStart() { 
   hideAll(); 
   document.getElementById("start-screen").style.display = "block"; 
 } 
 
+//과목선택화면
 function goToMain() { 
   hideAll(); 
   updateScores(); 
   document.getElementById("main-screen").style.display = "block"; 
 } 
 
+//종료확인화면
 function confirmExit() { 
   document.getElementById("exit-confirm").style.display = "block"; 
 } 
 
+//종료 취소
 function cancelExit() { document.getElementById("exit-confirm").style.display = "none"; 
 } 
 
+//종료 확인
 function exitApp() { 
   alert("앱을 종료합니다."); 
   cancelExit(); 
 } 
 
+//테마선택화면
 function goToTheme(subject) { 
   hideAll(); 
   currentSubject = subject; 
@@ -86,9 +97,11 @@ function goToTheme(subject) {
   document.getElementById("theme-screen").style.display = "block"; 
 } 
 
+//문제풀이화면
 function startQuiz(subject) { 
   currentSubject = subject; 
   score = 0; 
+  checkscore = 0;
   totalCorrect = 0; 
   totalQuestions = 0; 
   usedQuestions = []; 
@@ -96,10 +109,12 @@ function startQuiz(subject) {
   document.getElementById("score-display").textContent = "현재 점수: 0/20"; 
   hideAll(); 
   document.getElementById("quiz-screen").style.display = "block"; 
-  nextQuestion(); 
+  nextQuestion(currentSubject); 
 } 
 
-function nextQuestion() { 
+//다음문제 버튼
+function nextQuestion(subject) { 
+  currentSubject = subject;
   const questions = questionsDB[currentSubject]; 
   const available = questions.filter(q => !usedQuestions.includes(q)); 
   
@@ -132,40 +147,54 @@ function nextQuestion() {
     document.getElementById("choices").appendChild(btn); }); 
     
   // ✅ UI 업데이트 코드 끝 
+
+  // 이 기능은 다음문제 기능에서 구현 해 놔야 함
+  //if (totalQuestions >= 20) { 
+  //  goToFinish(currentSubject); 
+  //  return; 
+
 } 
 
+// 문제풀이 완료버튼
 function checkAnswer() { 
   if (selected === null) { alert("지문을 선택하세요!"); 
     return; 
   } 
+    //totalQuestions++; 완료 버튼으로는 풀이 수가 늘어나면 안돼. 다음문제 버튼에 기능을 넣어야 해.
+  //아무리 많이 눌러도 1번 이상 올라가지 않는 기능 필요
   
-  totalQuestions++; 
-
+  checkscore = score
   subjectScores[currentSubject].total++;  // 총 문제 수 증가
   if (selected === currentQuestion.answer) { 
-    score++; //퀴즈 세션 점수
     // totalCorrect++; 왜 뺐지?
-    subjectScores[currentSubject].correct++; // 누적 정답 수 증가
+    if (checkscore = score) {
+      score++; //한번 맞은 후라면 체크스코어가 이미 1 커져서 if가 score 커지는 걸 막음
+      subjectScores[currentSubject].correct++; // 누적 정답 수 증가
+    }
+    checkscore++;  //체크스코어는 맞기만하면 +1이라서 스코어랑 달라짐
     document.getElementById("result").textContent = "정답입니다!"; 
   } else {
     document.getElementById("result").textContent = "오답입니다."; 
 
   } 
+  
+  // 이 기능은 다음문제 기능에서만 되도록 해야 하는데
+  //if (totalQuestions >= 20) { 
+  //  goToFinish(currentSubject); 
+  //  return; 
+  } 
 
-if (totalQuestions >= 20) { 
-  goToFinish(currentSubject); 
-  return; 
-} 
-
-document.getElementById("score-display").textContent = `현재 점수: ${score}/20`; 
+document.getElementById("score-display").textContent = `현재 점수: ${score}/${totalQuestions}`; 
 document.getElementById("correct-answer").textContent = `정답: ${currentQuestion.choices[currentQuestion.answer]}`; 
 document.getElementById("explanation").textContent = currentQuestion.explanation; 
 } 
 
+//해설보기
 function showExplanation() { 
   document.getElementById("explanation").style.display = "block"; 
 } 
 
+//점수합계
 function updateScores() { 
   document.getElementById("score-korean").textContent = `${subjectScores["국어"].correct}/${subjectScores["국어"].total}`; 
   document.getElementById("score-history").textContent = `${subjectScores["한국사"].correct}/${subjectScores["한국사"].total}`; 
@@ -173,6 +202,7 @@ function updateScores() {
   document.getElementById("score-math").textContent = `${subjectScores["수학"].correct}/${subjectScores["수학"].total}`; 
 } 
 
+//풀이종료화면
 function goToFinish(subject) { 
   hideAll(); 
   currentSubject = subject; 
