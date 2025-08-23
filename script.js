@@ -114,41 +114,72 @@ function startQuiz(subject) {
 
 //다음문제 버튼
 function nextQuestion(subject) { 
-  currentSubject = subject;
-  const questions = questionsDB[currentSubject]; 
-  const available = questions.filter(q => !usedQuestions.includes(q)); 
+  currentSubject = subject; 
+  //현재 과목(currentSubject)에 해당하는 문제 배열을 questions 변수에 저장
+  const questions = questionsDB[currentSubject];
+  // 사용된 문제(usedQuestions)를 제외한 남은 문제들을 available 변수에 저장
+  const available = questions.filter(q => !usedQuestions.includes(q));
   
+// 남은 문제가 없거나(퀴즈를 20문제 이상 풀었을 경우)
+// 또는 totalQuestions가 20 이상일 경우 퀴즈를 종료합니다.
   if (available.length === 0 || totalQuestions >= 20) { 
     hideAll();
+    // "finish-screen" 요소를 화면에 보이게 합니다.
     document.getElementById("finish-screen").style.display = "block";
+    // goToFinish 함수를 호출하여 퀴즈 종료 처리를 합니다.
     goToFinish(currentSubject); 
+    // 함수를 종료합니다.
     return; 
   } 
   
+  // 남은 문제 중에서 무작위로 한 문제를 선택합니다.
+// Math.random()을 사용하여 0과 1 사이의 난수를 생성하고,
+// available.length를 곱하여 available 배열의 인덱스를 구합니다.
+// Math.floor()로 소수점을 버려 정수로 만듭니다.
   currentQuestion = available[Math.floor(Math.random() * available.length)]; 
+  // 선택된 문제를 usedQuestions 배열에 추가하여 다시 사용되지 않도록 합니다.
   usedQuestions.push(currentQuestion); 
+  // 사용자가 선택한 답안을 나타내는 selected 변수를 null로 초기화합니다.
   selected = null; 
   
   // ✅ UI 업데이트 코드 시작 
+  // HTML에서 "question" ID를 가진 요소의 내용을 현재 문제 텍스트로 변경합니다.
   document.getElementById("question").textContent = "문제: " + currentQuestion.question; 
+  // HTML에서 "passage" ID를 가진 요소의 내용을 현재 문제의 지문 텍스트로 변경합니다.
   document.getElementById("passage").textContent = "지문: " + currentQuestion.passage; 
-  document.getElementById("choices").innerHTML = ""; document.getElementById("result").textContent = ""; 
+  // "choices" ID를 가진 요소의 내부 HTML을 비워 이전 선택지들을 모두 제거합니다.
+  document.getElementById("choices").innerHTML = "";
+  // "result" ID를 가진 요소의 내용을 비워 정답/오답 표시를 초기화합니다.
+  document.getElementById("result").textContent = ""; 
+  // "explanation" ID를 가진 요소의 내용을 비워 해설을 초기화합니다.
   document.getElementById("explanation").textContent = ""; 
+  // "correct-answer" ID를 가진 요소의 내용을 비워 정답 표시를 초기화합니다.
   document.getElementById("correct-answer").textContent = ""; 
   
+  // 현재 문제의 선택지(choices) 배열을 무작위로 섞습니다.
+  // .map()을 사용하여 각 선택지와 인덱스를 객체로 만듭니다.
+  // .sort()의 비교 함수(Math.random() - 0.5)로 배열을 무작위로 섞습니다.
   const shuffledChoices = currentQuestion.choices .map((choice, index) => ({ index, choice })) .sort(() => Math.random() - 0.5); 
   
+  // 섞인 선택지 배열의 각 항목에 대해 반복문을 실행합니다.
+  // 새로운 버튼 요소를 생성합니다.
   shuffledChoices.forEach(({ index, choice }) => { const btn = document.createElement("button"); 
+    // 버튼의 텍스트를 선택지 내용으로 설정합니다.
     btn.textContent = choice; 
+    // 버튼을 클릭했을 때 실행될 이벤트를 정의합니다.
+    // 클릭된 버튼의 원래 인덱스를 selected 변수에 할당합니다.
     btn.onclick = () => { selected = index; 
-      
-  Array.from(document.getElementById("choices").children).forEach(b => b.classList.remove("selected")); 
+    // 모든 선택지 버튼의 'selected' 클래스를 제거합니다.
+    Array.from(document.getElementById("choices").children).forEach(b => b.classList.remove("selected")); 
+    // 클릭된 버튼에 'selected' 클래스를 추가하여 시각적 효과를 줍니다.
     btn.classList.add("selected"); }; 
+    // 생성된 버튼을 "choices" ID를 가진 요소에 추가합니다.
     document.getElementById("choices").appendChild(btn); }); 
     
   // ✅ UI 업데이트 코드 끝 
 
     hasAnswered = false; //완료 버튼 검증용 기능 원복
+
   // 이 기능은 다음문제 기능에서 구현 해 놔야 함
   //if (totalQuestions >= 20) { 
   //  goToFinish(currentSubject); 
