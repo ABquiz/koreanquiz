@@ -39,6 +39,7 @@ button:active {
   display: block;
   margin: 5px auto;
   width: 80%;
+  max-width: 600px;
   background-color: #f0f0f0;
   color: #333;
   border: 1px solid #ccc;
@@ -49,8 +50,8 @@ button:active {
 }
 
 /* 선택된 답변 강조 */
-.selected {
-  background-color: #d0eaff;
+#choices .selected {
+  background-color: #d4e2ee;
   border-color: #3399ff;
 }
 
@@ -62,6 +63,8 @@ button:active {
   margin-top: 15px;
   font-style: italic;
   color: #555;
+  /* ✅ 이 코드를 추가하여 최소한의 높이를 확보합니다. */
+  min-height: 50px; /* 원하는 높이로 조절 가능 */
 }
 
 /* 점수 표시 강조 */

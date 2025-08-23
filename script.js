@@ -13,6 +13,8 @@ fetch("korean_questions.csv")
   .then(data => {
     parseCSV(data);
     console.log("문제 로딩 완료:", questionsDB);
+    hideAll(); 
+    goToStart(); 
   })
   .catch(error => {
     console.error("CSV 파일 로딩 실패:", error);
@@ -106,7 +108,7 @@ function startQuiz(subject) {
   totalQuestions = 0; 
   usedQuestions = []; 
   document.getElementById("quiz-subject-title").textContent = subject; 
-  document.getElementById("score-display").textContent = "현재 점수: 0/20"; 
+  document.getElementById("score-display").textContent = "현재 점수: 0/0"; 
   hideAll(); 
   document.getElementById("quiz-screen").style.display = "block"; 
   nextQuestion(currentSubject); 
@@ -122,17 +124,17 @@ function nextQuestion(subject) {
   
 // 남은 문제가 없거나(퀴즈를 20문제 이상 풀었을 경우)
 // 또는 totalQuestions가 20 이상일 경우 퀴즈를 종료합니다.
-  if (available.length === 0 || totalQuestions >= 20) { 
-    hideAll();
+  if (available.length === 0) { //종료버튼 넣으면서 빠진부분|| totalQuestions >= 3) { 
+    // hideAll();
     // "finish-screen" 요소를 화면에 보이게 합니다.
-    document.getElementById("finish-screen").style.display = "block";
+    // 종료버튼 넣으면서 빠진부분 document.getElementById("finish-screen").style.display = "block";
     // goToFinish 함수를 호출하여 퀴즈 종료 처리를 합니다.
     goToFinish(currentSubject); 
     // 함수를 종료합니다.
     return; 
   } 
   
-  // 남은 문제 중에서 무작위로 한 문제를 선택합니다.
+// 남은 문제 중에서 무작위로 한 문제를 선택합니다.
 // Math.random()을 사용하여 0과 1 사이의 난수를 생성하고,
 // available.length를 곱하여 available 배열의 인덱스를 구합니다.
 // Math.floor()로 소수점을 버려 정수로 만듭니다.
@@ -179,13 +181,16 @@ function nextQuestion(subject) {
   // ✅ UI 업데이트 코드 끝 
 
     hasAnswered = false; //완료 버튼 검증용 기능 원복
+    document.getElementById("next-button").style.display = 'block';
+    document.getElementById("finish-button").style.display = 'none';
 
-  // 이 기능은 다음문제 기능에서 구현 해 놔야 함
-  //if (totalQuestions >= 20) { 
-  //  goToFinish(currentSubject); 
-  //  return; 
+  // 문제풀이 아래 칸 공간 확보
+  document.getElementById("result").textContent = "결과: "; 
+  document.getElementById("correct-answer").textContent = "정답: "; 
+  document.getElementById("explanation").textContent = "해설: ";
+  
+  } 
 
-} 
 
 // 문제풀이 완료버튼
 function checkAnswer() { 
@@ -202,32 +207,37 @@ function checkAnswer() {
   hasAnswered = true; 
   totalQuestions++;
 
+  // ✅ 마지막 문제일 경우 버튼을 전환합니다.
+    if (totalQuestions >= 3) { // 테스트를 위해 3으로 설정
+        document.getElementById("next-button").style.display = 'none'; // 다음문제 버튼 숨기기
+        document.getElementById("finish-button").style.display = 'block'; // 퀴즈 종료 버튼 보이기
+    }
+
   subjectScores[currentSubject].total++;  // 총 문제 수 증가
   if (selected === currentQuestion.answer) { 
     score++; 
     subjectScores[currentSubject].correct++; // 누적 정답 수 증가
-    document.getElementById("result").textContent = "정답입니다!"; 
+    document.getElementById("result").textContent = "결과: 정답입니다!"; 
   } else {
-    document.getElementById("result").textContent = "오답입니다."; 
+    document.getElementById("result").textContent = "결과: 오답입니다."; 
   } 
     document.getElementById("score-display").textContent = `정답/풀이: ${score}/${totalQuestions}`; 
     document.getElementById("correct-answer").textContent = `정답: ${currentQuestion.choices[currentQuestion.answer]}`; 
-    document.getElementById("explanation").textContent = currentQuestion.explanation; 
-// 이 기능은 다음문제 기능에서만 되도록 해야 하는데
-//if (totalQuestions >= 20) { 
-//  goToFinish(currentSubject); 
-//  return; 
+    document.getElementById("explanation").textContent = `해설: ${currentQuestion.explanation}`; 
+
 
   }
 
-// 이 기능은 다음문제 기능에서만 되도록 해야 하는데
+// 이 기능은 다음문제 버튼을 종료버튼 으로 바꾸면서 기능 변경
 //if (totalQuestions >= 20) { 
 //  goToFinish(currentSubject); 
 //  return; 
 
 //해설보기
 function showExplanation() { 
-  document.getElementById("explanation").style.display = "block"; 
+  //document.getElementById("explanation").style.display = "block"; 
+  //완료버튼의 코드와 동일
+  document.getElementById("explanation").textContent = `해설: ${currentQuestion.explanation}`; 
 } 
 
 //점수합계
@@ -243,13 +253,12 @@ function goToFinish(subject) {
   hideAll(); 
   currentSubject = subject; 
   document.getElementById("finish-subject-title").textContent = currentSubject; 
-  document.getElementById("final-score").textContent = `${score}/20`; 
+  document.getElementById("final-score").textContent = `${score}/${totalQuestions}`; 
   const totalCorrect = subjectScores[currentSubject].correct;
-  const totalQuestions = subjectScores[currentSubject].total;
-  document.getElementById("total-score").textContent = `${totalCorrect}/${totalQuestions}`; 
+  const totalSubjectQuestions = subjectScores[currentSubject].total;
+  document.getElementById("total-score").textContent = `${totalCorrect}/${totalSubjectQuestions}`; 
   document.getElementById("finish-screen").style.display = "block"; 
 } 
 
-hideAll(); 
-goToStart(); 
+
 

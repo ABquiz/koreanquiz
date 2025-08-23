@@ -6,10 +6,6 @@
     <link rel="stylesheet" href="style.css"> 
   </head> 
   
-<!-- <div id="final-score"></div> -->
-<!-- <div id="total-score"></div>-->
-<!-- <div id="finish-subject-title"></div> -->
-  
   <body> 
     <!-- 시작화면 --> 
      <div id="start-screen">
@@ -63,12 +59,18 @@
         <div id="choices"></div> 
         <button onclick="checkAnswer()">완료</button> 
         <button onclick="showExplanation()">해설보기</button> 
-        <div id="result"></div> <div id="explanation"></div> 
-        <div id="correct-answer"></div> <button onclick="nextQuestion()">다음문제</button> 
+        <div id="result">결과: </div>
+        <div id="explanation">해설: </div> 
+        <div id="correct-answer">정답: </div>
+        <button id="next-button" onclick="nextQuestion(currentSubject)">다음문제</button> 
+        <button id="finish-button" onclick="goToFinish(currentSubject)" style="display:none;">퀴즈 종료</button>
       </div>
 
     <!-- 풀이종료 화면 --> 
       <div id="finish-screen" style="display:none;"> 
+        <!--<div id="final-score"></div>
+        <div id="total-score"></div>-->
+        <div id="finish-subject-title"></div>
         <button onclick="goToStart()" style="position:absolute; top:10px; left:10px;">처음으로</button> 
         <button class="exit-button" onclick="confirmExit()">종료</button> 
         <h2>이번 정답 수: <span id="final-score">0/20</span></h2> 
