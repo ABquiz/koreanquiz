@@ -181,15 +181,25 @@ function nextQuestion(subject) {
   // ✅ UI 업데이트 코드 끝 
 
     hasAnswered = false; //완료 버튼 검증용 기능 원복
-    document.getElementById("next-button").style.display = 'block';
-    document.getElementById("finish-button").style.display = 'none';
+    //document.getElementById("next-button").style.display = 'block';
+    //document.getElementById("finish-button").style.display = 'none';
 
   // 문제풀이 아래 칸 공간 확보
   document.getElementById("result").textContent = "결과: "; 
   document.getElementById("correct-answer").textContent = "정답: "; 
   document.getElementById("explanation").textContent = "해설: ";
   
-  } 
+    // ✅ 다음 문제가 마지막 문제인지 확인합니다. (총 3문제 기준)
+    if (usedQuestions.length >= 3) {
+        document.getElementById("next-button").style.display = 'none';
+        document.getElementById("finish-button").style.display = 'block';
+    } else {
+        document.getElementById("next-button").style.display = 'block';
+        document.getElementById("finish-button").style.display = 'none';
+    }
+}
+
+
 
 
 // 문제풀이 완료버튼
@@ -208,10 +218,10 @@ function checkAnswer() {
   totalQuestions++;
 
   // ✅ 마지막 문제일 경우 버튼을 전환합니다.
-    if (totalQuestions >= 3) { // 테스트를 위해 3으로 설정
-        document.getElementById("next-button").style.display = 'none'; // 다음문제 버튼 숨기기
-        document.getElementById("finish-button").style.display = 'block'; // 퀴즈 종료 버튼 보이기
-    }
+    //if (totalQuestions >= 3) { // 테스트를 위해 3으로 설정
+    //    document.getElementById("next-button").style.display = 'none'; // 다음문제 버튼 숨기기
+    //    document.getElementById("finish-button").style.display = 'block'; // 퀴즈 종료 버튼 보이기
+    //}
 
   subjectScores[currentSubject].total++;  // 총 문제 수 증가
   if (selected === currentQuestion.answer) { 
