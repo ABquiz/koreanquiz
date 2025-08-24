@@ -41,10 +41,16 @@
         <button class="exit-button" onclick="confirmExit()">종료</button> 
         <h2 id="theme-subject-title">과목명</h2> 
         <button onclick="startQuiz(currentSubject)">전체영역</button> 
-        <h3>상세 테마 선택</h3> 
+        <h3>난이도/테마 선택</h3>
+        <select id="level-list">
+          <option value="">전체</option>
+          <option value="1">하</option>
+          <option value="2">중</option>
+          <option value="3">상</option>
+        </select>
         <select id="theme-list"> 
         <option value="">테마를 선택하세요</option> 
-        </select> <button onclick="startQuizWithTheme()">테마 확인</button> 
+        </select> <button onclick="startQuiz(currentSubject)">확인</button> 
       </div>
 
     <!-- 문제풀이 화면 --> 
@@ -52,8 +58,7 @@
         <button onclick="goToTheme(currentSubject)" style="position:absolute; top:10px; left:10px;">테마선택</button> 
         <button class="exit-button" onclick="confirmExit()">종료</button> 
         <h2 id="quiz-subject-title">과목명</h2> 
-        <h3 id="score-display">현재 점수: 0/20</h3> 
-        <h3>(총 20문제)</h3> 
+        <h3 id="score-display">현재 점수: 0/0 (총 20문제)</h3> 
         <div id="question">문제:</div> 
         <div id="passage">지문:</div> 
         <div id="choices"></div> 

@@ -1,5 +1,6 @@
 let currentSubject = ""; 
 let usedQuestions = []; 
+let filteredQuestions = [];
 let totalCorrect = 0;
 let totalQuestions = 0;
 let score = 0;
@@ -7,18 +8,41 @@ let hasAnswered = false;
 let currentQuestion = null;
 let selected = null;
 
-// csv 불러오기
-fetch("korean_questions.csv")
-  .then(response => response.text())
-  .then(data => {
-    parseCSV(data);
-    console.log("문제 로딩 완료:", questionsDB);
-    hideAll(); 
-    goToStart(); 
-  })
-  .catch(error => {
-    console.error("CSV 파일 로딩 실패:", error);
+const fileNames = {
+  '국어': 'korean_questions.csv',
+  '한국사' : 'history_questions.csv',
+  '사회' : 'social_questions.csv',
+  '수학' : 'math_questions.csv',
+  // 앞으로 '초등-국어': 'korean_elementary.csv' 처럼 추가하면 됩니다.
+}
+
+// 모든 csv 파일을 불러오는 Promise를 생성하고, 모든 파일이 로드되면 게임을 시작합니다.
+const fetchPromises = Object.entries(fileNames).map(([subject, fileName]) => 
+  fetch(fileName)
+    .then(response => response.text())
+    .then(data => parseCSV(data))
+    .catch(error => console.error(`파일 로딩 실패: ${fileName}`, error))
+);
+
+Promise.all(fetchPromises)
+  .then(() => {
+    console.log("모든 문제 로딩 완료:", questionsDB);
+    hideAll();
+    goToStart();
   });
+
+//기존 csv 로딩 코드
+//fetch("korean_questions.csv")
+//  .then(response => response.text())
+//  .then(data => {
+//    parseCSV(data);
+//    console.log("문제 로딩 완료:", questionsDB);
+//    hideAll(); 
+//    goToStart(); 
+//  })
+//  .catch(error => {
+//    console.error("CSV 파일 로딩 실패:", error);
+//  });
 
 
 const questionsDB = { 
@@ -42,12 +66,23 @@ function parseCSV(csvText) {
   
   for (let i = 1; i < lines.length; i++) { 
     const values = lines[i].split(",").map(v => v.trim()); 
+
+    // ✅ option1 ~ option5 데이터를 배열로 합칩니다.
+    const themes = [];
+    for(let j = 10; j <= 14; j++) {
+        if(values[j]) {
+            themes.push(values[j]);
+        }
+    }
+
     const questionObj = { 
       question: values[1], 
       passage: values[2], 
       choices: [values[3], values[4], values[5], values[6]], 
       answer: parseInt(values[7]), 
-      explanation: values[8] 
+      explanation: values[8],
+      level: parseInt(values[9]), // ✅ level 데이터 추가
+      themes: themes // ✅ themes 배열 추가
     }; 
     questionsDB[values[0]].push(questionObj); 
   } 
@@ -96,6 +131,22 @@ function goToTheme(subject) {
   hideAll(); 
   currentSubject = subject; 
   document.getElementById("theme-subject-title").textContent = subject; 
+
+  // ✅ 현재 과목의 모든 테마를 가져와서 중복 제거
+    const themes = new Set();
+    questionsDB[currentSubject].forEach(q => {
+        q.themes.forEach(theme => themes.add(theme));
+    });
+
+    // ✅ 드롭다운 메뉴에 테마 목록 추가
+    const themeList = document.getElementById("theme-list");
+    themeList.innerHTML = '<option value="">전체영역</option>'; // 기본값 추가
+    themes.forEach(theme => {
+        const option = document.createElement("option");
+        option.value = theme;
+        option.textContent = theme;
+        themeList.appendChild(option);
+    });
   document.getElementById("theme-screen").style.display = "block"; 
 } 
 
@@ -107,20 +158,52 @@ function startQuiz(subject) {
   totalCorrect = 0; 
   totalQuestions = 0; 
   usedQuestions = []; 
+  hasAnswered = false;
+
+  // ✅ 선택된 난이도와 테마 값을 가져옵니다.
+  const selectedLevel = document.getElementById("level-list").value;
+  const selectedTheme = document.getElementById("theme-list").value;
+
+  // 모든 문제를 가져옵니다.
+  filteredQuestions = questionsDB[currentSubject];
+
+  // ✅ 2. 선택된 조건에 따라 문제를 필터링합니다.
+  if (selectedLevel) {
+     filteredQuestions = filteredQuestions.filter(q => q.level === parseInt(selectedLevel));
+  }
+  if (selectedTheme) {
+    filteredQuestions = filteredQuestions.filter(q => q.themes.includes(selectedTheme));
+  }
+
+  // ✅ 3. 만약 필터링된 문제가 없다면 경고 메시지를 띄우고 종료
+  if (filteredQuestions.length === 0) {
+      alert("선택한 조건에 맞는 문제가 없습니다. 다시 선택해주세요.");
+      goToTheme(currentSubject); // 테마 선택 화면으로 돌아가기
+      return;
+  }
+
+
   document.getElementById("quiz-subject-title").textContent = subject; 
-  document.getElementById("score-display").textContent = "현재 점수: 0/0"; 
+  document.getElementById("score-display").textContent = "현재 점수: 0/0 (총 20문제)"; 
   hideAll(); 
   document.getElementById("quiz-screen").style.display = "block"; 
-  nextQuestion(currentSubject); 
+  nextQuestion(); 
 } 
 
 //다음문제 버튼
-function nextQuestion(subject) { 
-  currentSubject = subject; 
+function nextQuestion() { 
+  const available = filteredQuestions.filter(q => !usedQuestions.includes(q));
+  
+  // 남은 문제가 없으면 퀴즈를 종료합니다.
+  if (available.length === 0 || usedQuestions.length >= 20) { // ✅ 총 20문제 제한 로직 추가
+    goToFinish(currentSubject); 
+    return; 
+  } 
+  //currentSubject = subject; 
   //현재 과목(currentSubject)에 해당하는 문제 배열을 questions 변수에 저장
-  const questions = questionsDB[currentSubject];
+  //const questions = questionsDB[currentSubject];
   // 사용된 문제(usedQuestions)를 제외한 남은 문제들을 available 변수에 저장
-  const available = questions.filter(q => !usedQuestions.includes(q));
+  //const available = questions.filter(q => !usedQuestions.includes(q));
   
 // 남은 문제가 없거나(퀴즈를 20문제 이상 풀었을 경우)
 // 또는 totalQuestions가 20 이상일 경우 퀴즈를 종료합니다.
@@ -161,20 +244,24 @@ function nextQuestion(subject) {
   // 현재 문제의 선택지(choices) 배열을 무작위로 섞습니다.
   // .map()을 사용하여 각 선택지와 인덱스를 객체로 만듭니다.
   // .sort()의 비교 함수(Math.random() - 0.5)로 배열을 무작위로 섞습니다.
-  const shuffledChoices = currentQuestion.choices .map((choice, index) => ({ index, choice })) .sort(() => Math.random() - 0.5); 
+  const shuffledChoices = currentQuestion.choices 
+  .map((choice, index) => ({ index, choice })) 
+  .sort(() => Math.random() - 0.5); 
   
   // 섞인 선택지 배열의 각 항목에 대해 반복문을 실행합니다.
   // 새로운 버튼 요소를 생성합니다.
-  shuffledChoices.forEach(({ index, choice }) => { const btn = document.createElement("button"); 
+  shuffledChoices.forEach(({ index, choice }) => {
+    const btn = document.createElement("button");
     // 버튼의 텍스트를 선택지 내용으로 설정합니다.
     btn.textContent = choice; 
     // 버튼을 클릭했을 때 실행될 이벤트를 정의합니다.
     // 클릭된 버튼의 원래 인덱스를 selected 변수에 할당합니다.
-    btn.onclick = () => { selected = index; 
-    // 모든 선택지 버튼의 'selected' 클래스를 제거합니다.
-    Array.from(document.getElementById("choices").children).forEach(b => b.classList.remove("selected")); 
-    // 클릭된 버튼에 'selected' 클래스를 추가하여 시각적 효과를 줍니다.
-    btn.classList.add("selected"); }; 
+    btn.onclick = () => {
+      selected = index; 
+      // 모든 선택지 버튼의 'selected' 클래스를 제거합니다.
+      Array.from(document.getElementById("choices").children).forEach(b => b.classList.remove("selected")); 
+      // 클릭된 버튼에 'selected' 클래스를 추가하여 시각적 효과를 줍니다.
+      btn.classList.add("selected"); }; 
     // 생성된 버튼을 "choices" ID를 가진 요소에 추가합니다.
     document.getElementById("choices").appendChild(btn); }); 
     
@@ -231,7 +318,7 @@ function checkAnswer() {
   } else {
     document.getElementById("result").textContent = "결과: 오답입니다."; 
   } 
-    document.getElementById("score-display").textContent = `정답/풀이: ${score}/${totalQuestions}`; 
+    document.getElementById("score-display").textContent = `정답/풀이: ${score}/${totalQuestions} (총 20문제)`; 
     document.getElementById("correct-answer").textContent = `정답: ${currentQuestion.choices[currentQuestion.answer]}`; 
     document.getElementById("explanation").textContent = `해설: ${currentQuestion.explanation}`; 
 
@@ -269,6 +356,3 @@ function goToFinish(subject) {
   document.getElementById("total-score").textContent = `${totalCorrect}/${totalSubjectQuestions}`; 
   document.getElementById("finish-screen").style.display = "block"; 
 } 
-
-
-
